@@ -2,9 +2,9 @@ description = [[
 Local static review of selected SSH daemon settings in /etc/ssh/sshd_config.
 Run only against localhost. Does not resolve Include files or Match blocks,
 so findings should be verified against the effective sshd configuration.
-This is a custom demonstration script, not an official Lynis script.
+This custom Nmap NSE script reads the local SSH daemon configuration.
 ]]
-author = "Student project"
+author = "Kaavya Gupta"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
@@ -34,9 +34,7 @@ action = function(host)
   local path = "/etc/ssh/sshd_config"
   local settings, err = read_settings(path)
   if not settings then return "[WARNING] " .. err end
-
   local out = {"Enhanced SSH Configuration Audit", "Source: " .. path}
-
   if not settings.permitrootlogin then
     table.insert(out, "[INFO] PermitRootLogin not found in this file; verify effective sshd configuration")
   elseif settings.permitrootlogin == "no" then
@@ -45,7 +43,6 @@ action = function(host)
     table.insert(out, "[WARNING] PermitRootLogin is set to " .. settings.permitrootlogin ..
       "; review whether root SSH login is required")
   end
-
   if not settings.passwordauthentication then
     table.insert(out, "[INFO] PasswordAuthentication not found in this file; verify effective sshd configuration")
   elseif settings.passwordauthentication == "no" then
@@ -54,7 +51,6 @@ action = function(host)
     table.insert(out, "[INFO] PasswordAuthentication is set to " .. settings.passwordauthentication ..
       "; confirm this matches the intended authentication policy")
   end
-
   table.insert(out, "[INFO] Limitation: this static check does not resolve Include files or Match blocks.")
   table.insert(out, "[INFO] Verify effective settings with: sudo sshd -T")
   return table.concat(out, "\n")

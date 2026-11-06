@@ -1,9 +1,9 @@
 description = [[
 Local password-aging policy review based on active PASS_MAX_DAYS and
 PASS_MIN_DAYS entries in /etc/login.defs. Run only against localhost.
-This is a custom demonstration script, not an official Lynis script.
+This custom Nmap NSE script reads local system defaults.
 ]]
-author = "Student project"
+author = "Kaavya Gupta"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
@@ -28,7 +28,6 @@ action = function(host)
   local path = "/etc/login.defs"
   local values, err = read_policy(path)
   if not values then return "[WARNING] " .. err end
-
   local out = {"Enhanced Password Policy Audit", "Source: " .. path}
   if values.PASS_MAX_DAYS == nil then
     table.insert(out, "[WARNING] PASS_MAX_DAYS not found or not numeric")
@@ -40,7 +39,6 @@ action = function(host)
   else
     table.insert(out, "[PASS] PASS_MAX_DAYS = " .. values.PASS_MAX_DAYS .. " days")
   end
-
   if values.PASS_MIN_DAYS == nil then
     table.insert(out, "[INFO] PASS_MIN_DAYS not found or not numeric")
   elseif values.PASS_MIN_DAYS < 0 then
@@ -48,7 +46,6 @@ action = function(host)
   else
     table.insert(out, "[INFO] PASS_MIN_DAYS = " .. values.PASS_MIN_DAYS .. " days")
   end
-
   table.insert(out, "[INFO] Scope: reads /etc/login.defs only; does not audit existing user account aging.")
   return table.concat(out, "\n")
 end
